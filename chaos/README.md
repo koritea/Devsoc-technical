@@ -36,22 +36,22 @@ Make sure to include foreign keys for the relationships that will `CASCADE` upon
 
 ```sql
 CREATE TABLE forms (
-  id				    integer primary key,
-  title			    text,
-  description   text
+  	id		integer primary key,
+  	title		text,
+  	description   	text
 );
 
 CREATE TABLE questions (
-	id				    integer primary key,
-	form_id			  integer references forms(id) on delete cascade,
-	title			    text,
+	id		integer primary key,
+	form_id		integer references forms(id) on delete cascade,
+	title		text,
 	question_type	question_type
 );
 
 CREATE TABLE question_options (
-	id				    integer primary key,
+	id		integer primary key,
 	question_id 	integer references questions(id) on delete cascade,
-	option			  text
+	option		text
 );
 ```
 

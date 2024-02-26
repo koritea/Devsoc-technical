@@ -1,8 +1,9 @@
 # CHAOS Technical Task
 
-***Complete as many questions as you can.***
+**_Complete as many questions as you can._**
 
 ## Question 1
+
 You have been given a skeleton function `process_data` in the `data.rs` file.
 Complete the parameters and body of the function so that given a JSON request of the form
 
@@ -13,6 +14,7 @@ Complete the parameters and body of the function so that given a JSON request of
 ```
 
 the handler returns the following JSON:
+
 ```json
 {
   "string_len": 11,
@@ -25,27 +27,38 @@ Edit the `DataResponse` and `DataRequest` structs as you need.
 ## Question 2
 
 ### a)
+
 Write (Postgres) SQL `CREATE TABLE` statements to create the following schema.
 Make sure to include foreign keys for the relationships that will `CASCADE` upon deletion.
 ![Database Schema](db_schema.png)
 
 **Answer box:**
+
 ```sql
 CREATE TABLE forms (
-    --     Add columns here
+  id				    integer primary key,
+  title			    text,
+  description   text
 );
 
 CREATE TABLE questions (
-    --     Add columns here
+	id				    integer primary key,
+	form_id			  integer references forms(id) on delete cascade,
+	title			    text,
+	question_type	question_type
 );
 
 CREATE TABLE question_options (
-    --     Add columns here
+	id				    integer primary key,
+	question_id 	integer references questions(id) on delete cascade,
+	option			  text
 );
 ```
 
 ### b)
+
 Using the above schema, write a (Postgres) SQL `SELECT` query to return all questions in the following format, given the form id `26583`:
+
 ```
    id    |   form_id   |           title             |   question_type   |     options
 ------------------------------------------------------------------------------------------------------------
@@ -55,6 +68,14 @@ Using the above schema, write a (Postgres) SQL `SELECT` query to return all ques
 ```
 
 **Answer box:**
+
 ```sql
--- Write query here
+select q.id, q.form_id, q.title, q.question_type,
+  case
+      when count(*) > 0 then '{"' || string_agg(o.option, '", "') || '"}'
+      else '[null]'
+  end as options
+from questions q
+join question_options o on o.question_id = q.id
+where q.form_id = 26583;
 ```

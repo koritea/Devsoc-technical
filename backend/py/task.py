@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from collections import Counter, defaultdict
 
 @dataclass
 class File:
@@ -13,21 +14,62 @@ class File:
 Task 1
 """
 def leafFiles(files: list[File]) -> list[str]:
-    return []
+    numChildren = {}
+    for f in files:
+        if f.id not in numChildren.keys():
+            numChildren[f.id] = 0
+        if f.parent != -1:
+            numChildren[f.parent] = numChildren.get(f.parent, 0) + 1
+    
+    leaves = []
+    for f in files:
+        if numChildren[f.id] == 0:
+            leaves.append(f.name)
+    return leaves
 
 
 """
 Task 2
 """
 def kLargestCategories(files: list[File], k: int) -> list[str]:
-    return []
+    numFiles = Counter()
+    for f in files:
+        numFiles.update(f.categories)
+    
+    # sort in descending order of values, then by alphabetical of keys
+    sortedCategories = sorted(numFiles.items(), key=lambda f: (-f[1], f[0]))
+    return [c for c, _ in sortedCategories[:k]]
 
 
 """
 Task 3
 """
 def largestFileSize(files: list[File]) -> int:
-    return 0
+    fileSize = {}
+    children = defaultdict(list)
+    totalSizes = {}
+
+    def getChildrenSizes(id):
+        if id in totalSizes.keys():
+            return totalSizes[id]
+
+        totalSizes[id] = fileSize[id]
+        if id in children.keys():
+            for c in children[id]:
+                totalSizes[id] += getChildrenSizes(c)
+        return totalSizes[id]
+        
+    # store list of children for each file and map id to size
+    for f in files:
+        fileSize[f.id] = f.size
+        if f.parent != -1:
+            children[f.parent].append(f.id)
+    
+    # calculate total size for each file
+    for f in files:
+        totalSizes[f.id] = getChildrenSizes(f.id)
+    
+    return 0 if not totalSizes else max(totalSizes.values())
 
 
 if __name__ == '__main__':
